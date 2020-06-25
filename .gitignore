@@ -1,0 +1,10 @@
+xmonad.errors
+xmonad.hi
+xmonad.hie
+xmonad.o
+xmonad.errors
+stack.yaml.lock
+xmonad
+xmonad-x86_64-linux
+*.swp
+.stack-work/
