@@ -14,17 +14,22 @@
   Repository: https://github.com/davidbrewer/xmonad-ubuntu-conf
 -}
 
-import           Control.Monad                (liftM2)
+import           Control.Monad                     (liftM2)
 import           System.Exit
 import           System.IO
 import           XMonad
 import           XMonad.Actions.CopyWindow
 import           XMonad.Actions.CycleRecentWS
+import           XMonad.Actions.FindEmptyWorkspace
+import qualified XMonad.Actions.FlexibleResize     as Flex
+import           XMonad.Actions.FloatSnap
+import           XMonad.Actions.GroupNavigation
 import           XMonad.Actions.Plane
+import           XMonad.Actions.SimpleDate
 import           XMonad.Actions.WindowGo
 import           XMonad.Hooks.DynamicLog
-import           XMonad.Hooks.EwmhDesktops    hiding (fullscreenEventHook)
-import qualified XMonad.Hooks.EwmhDesktops    as E
+import           XMonad.Hooks.EwmhDesktops         hiding (fullscreenEventHook)
+import qualified XMonad.Hooks.EwmhDesktops         as E
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.SetWMName
 import           XMonad.Hooks.UrgencyHook
@@ -33,17 +38,17 @@ import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
 import           XMonad.Layout.IM
 import           XMonad.Layout.NoBorders
-import           XMonad.Layout.PerWorkspace   (onWorkspace)
+import           XMonad.Layout.PerWorkspace        (onWorkspace)
 import           XMonad.Layout.ResizableTile
 import           XMonad.Layout.Tabbed
 import           XMonad.Layout.ThreeColumns
 import           XMonad.Util.EZConfig
 import           XMonad.Util.Run
 -- import XMonad.Hooks.ICCCMFocus  -- deprecated
-import qualified Data.Map                     as M
-import           Data.Ratio                   ((%))
+import qualified Data.Map                          as M
+import           Data.Ratio                        ((%))
 import           Graphics.X11.ExtraTypes.XF86
-import qualified XMonad.StackSet              as W
+import qualified XMonad.StackSet                   as W
 
 {-
   Xmonad configuration variables. These settings control some of the
@@ -219,7 +224,11 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
   [
     -- mod-button1, Set the window to floating mode and move by dragging
     ((modMask, button1),
-     (\w -> focus w >> mouseMoveWindow w))
+     (\w -> focus w >> mouseMoveWindow w >> afterDrag (snapMagicMove (Just 50) (Just 50) w)))
+
+    -- mod-button1, Set the window to floating mode and resize by dragging
+    , ((modMask .|. shiftMask, button1),
+       (\w -> focus w >> Flex.mouseResizeWindow w >> afterDrag (snapMagicResize [L,R,U,D] (Just 50) (Just 50) w)))
 
     -- mod-button2, Raise the window to the top of the stack
     , ((modMask, button2),
@@ -227,7 +236,7 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 
     -- mod-button3, Set the window to floating mode and resize by dragging
     , ((modMask, button3),
-       (\w -> focus w >> mouseResizeWindow w))
+       (\w -> focus w >> mouseResizeWindow w >> afterDrag (snapMagicResize [L,R,U,D] (Just 50) (Just 50) w)))
 
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
   ]
@@ -307,6 +316,25 @@ myKeys conf@(XConfig { XMonad.modMask = myModMask}) = M.fromList $
     -- Spawn a file launcher using menu-d [xdg-open, fasd and dmenu]
     , ((myModMask .|. shiftMask, xK_p),
       spawn myFileLauncher)
+
+    -- Show date not very useful
+    -- , ((myModMask,               xK_d     ), date)
+
+    -- View, shift to and view, and cast away to, empty Workspaces
+      , ((myModMask,                xK_n    ), viewEmptyWorkspace)
+      , ((myModMask .|. shiftMask,  xK_n    ), tagToEmptyWorkspace)
+      , ((myModMask .|. controlMask, xK_n    ), sendToEmptyWorkspace)
+
+    -- Rotate through terminator windows
+      , ((mySecModMask, xK_t), nextMatch Forward  (className =? "Terminator"))
+      , ((mySecModMask .|. shiftMask, xK_t), nextMatch Backward (className =? "Terminator"))
+
+    -- Rotate through similar windows
+      -- , ((mySecModMask , xK_j), nextMatchWithThis2 Forward  className isOnAnyVisibleWS)
+      -- , ((mySecModMask , xK_k), nextMatchWithThis2 Backward className isOnAnyVisibleWS)
+
+      , ((mySecModMask , xK_j), nextMatchWithThis Forward  className)
+      , ((mySecModMask , xK_k), nextMatchWithThis Backward className)
 {-
     -- Mute volume.
     , ((0, xF86XK_AudioMute),
@@ -370,7 +398,7 @@ myKeys conf@(XConfig { XMonad.modMask = myModMask}) = M.fromList $
       setLayout $ XMonad.layoutHook conf)
 
     -- Resize viewed windows to the correct size.
-    , ((myModMask, xK_n),
+    , ((mySecModMask, xK_n),
       refresh)
 
     -- Cycle through most recent workspaces.
@@ -452,6 +480,15 @@ myKeys conf@(XConfig { XMonad.modMask = myModMask}) = M.fromList $
       spawn "xdotool key alt+0")
   ]
   ++ workSpaceKeys
+    -- tried to chain properties for group navigation
+    -- where
+    --   nextMatchWithThis2 :: (Eq a , Eq b) => XMonad.Actions.GroupNavigation.Direction -> Query a -> Query b -> X ()
+    --   nextMatchWithThis2 dir qryA qryB = withFocused $ \win -> do
+    --     propA <- runQuery qryA win
+    --     propB <- runQuery qryB win
+    --     nextMatch dir ((qryA =? propA) <&&> (qryB =? propB))
+
+
 
 
 {-
