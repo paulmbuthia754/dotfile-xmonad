@@ -66,8 +66,9 @@ variety  &
 # cadence &
 # gnome-session &
 # unity-settings-daemon &
-fdpowermon &
+# fdpowermon &
 xfce4-power-manager &
+/usr/lib/x86_64-linux-gnu/xfce4/notifyd/xfce4-notifyd &
 indicator-kdeconnect &
 #
 # STARTUP ICON TRAY
@@ -111,3 +112,5 @@ eval "$(fasd --init auto)" &
 (cadence-session-start --system-start ; sleep 5 ; pasystray) &
 sleep 10 ; set_sound &
 my-payer-set &
+tomboy --panel-applet &
+gtg &
