@@ -124,9 +124,9 @@ myFocusFollowsMouse = True
 
 myWorkspaces =
   [
-    "7:Chat",  "8:Dbg", "9:Pix",
-    "4:Docs",  "5:Dev", "6:Web",
     "1:Term",  "2:Hub", "3:Mail",
+    "4:Docs",  "5:Dev", "6:Web",
+    "7:Chat",  "8:Dbg", "9:Pix",
     "0:VM",    "-:Extr1", "=:Extr2"
   ]
 
@@ -203,7 +203,10 @@ tabConfig = def {
 -- identified using the myIMRosterTitle variable, and by default is
 -- configured for Pidgin, so if you're using something else you
 -- will want to modify that variable.
-chatLayout = avoidStruts(withIM (1%7) (Title myIMRosterTitle) Grid)
+
+
+-- chatLayout = avoidStruts(withIM (1%7) (Title myIMRosterTitle) Grid)
+
 
 -- The GIMP layout uses the ThreeColMid layout. The traditional GIMP
 -- floating panels approach is a bit of a challenge to handle with xmonad;
@@ -216,8 +219,8 @@ gimpLayout = smartBorders(avoidStruts(ThreeColMid 1 (3/100) (3/4)))
 -- Here we combine our default layouts with our specific, workspace-locked
 -- layouts.
 myLayouts =
-  onWorkspace "7:Chat" chatLayout
-  $ onWorkspace "9:Pix" gimpLayout
+  -- onWorkspace "7:Chat" chatLayout
+  onWorkspace "9:Pix" gimpLayout
   $ defaultLayouts
 
 myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
@@ -541,11 +544,18 @@ myManagementHooks = [
   , className =? "rdesktop" --> doFloat
   , className =? "Orage" --> doFloat
   , className =? "Gnome-calendar" --> doFloat
-  , (className =? "Firefox") --> viewShift "6:Web"
+  , (className =? "Waterfox") --> viewShift "6:Web"
+  , (className =? "Firefox") --> doF ( W.shift "6:Web")
   , (className =? "Empathy") --> doF (W.shift "7:Chat")
   , (className =? "Pidgin") --> doF (W.shift "7:Chat")
   , (className =? "Gimp-2.8") --> doF (W.shift "9:Pix")
   , (className =? "Xfce4-notifyd") --> hasBorder False
+  , (className =? "Ulauncher") --> hasBorder False
+  , (className =? "Variety") <&&> ((stringProperty "WM_NAME") =? "Variety Images" ) --> (hasBorder False >> doFloat)
+  , (className =? "Variety") <&&> ((stringProperty "WM_NAME") =? "Variety History" ) --> (hasBorder False >> doFloat)
+  , (className =? "Variety") <&&> ((stringProperty "WM_NAME") =? "Variety Recent Downloads" ) --> (hasBorder False >> doFloat)
+  , (className =? "Rhythmbox") <&&> ((stringProperty "_GTK_WINDOW_OBJECT_PATH") =? "/org/gnome/Rhythmbox3/window/2" ) --> (hasBorder False >> doFloat)
+  -- This is for the Rhythmbox small window feature
   ]
           where viewShift = doF . liftM2 (.) W.greedyView W.shift
 
@@ -567,17 +577,17 @@ myManagementHooks = [
 -- uses the arrow keys.
 numPadKeys =
   [
-    xK_KP_Home, xK_KP_Up, xK_KP_Page_Up
+    xK_KP_End, xK_KP_Down, xK_KP_Page_Down
     , xK_KP_Left, xK_KP_Begin,xK_KP_Right
-    , xK_KP_End, xK_KP_Down, xK_KP_Page_Down
+    , xK_KP_Home, xK_KP_Up, xK_KP_Page_Up
     , xK_KP_Insert, xK_KP_Delete, xK_KP_Enter
   ]
 
 numKeys =
   [
-    xK_7, xK_8, xK_9
+    xK_1, xK_2, xK_3
     , xK_4, xK_5, xK_6
-    , xK_1, xK_2, xK_3
+    , xK_7, xK_8, xK_9
     , xK_0, xK_minus, xK_equal
   ]
 

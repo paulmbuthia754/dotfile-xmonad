@@ -113,4 +113,7 @@ eval "$(fasd --init auto)" &
 sleep 10 ; set_sound &
 my-payer-set &
 tomboy --panel-applet &
-gtg &
+# gtg &
+# Unfortunate artifact of pulseaudio bluetooth failure
+sleep 10; pactl load-module module-bluetooth-discover &
+blueman-applet &
