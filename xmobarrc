@@ -49,16 +49,26 @@ Config {
     -- Battery information. This is likely to require some customization
     -- based upon your specific hardware. Or, for a desktop you may want
     -- to just remove this section entirely.
-    Run BatteryP ["ACAD", "BAT1"] [
-      "-t", "<acstatus>: <left>%", 
+    -- Run BatteryP ["ADP1", "BAT1"] [
+    Run Battery [
+      "-t", "<acstatus> <left>",
+      "-H", "80",
+      "-L", "20",
+      "-h", "#11ffcc",
+      "-l", "red",
       "--",
-      "-H", "-10",
-      "-L", "-12",
-      "-O", "AC",
-      "-o", "Batt",
+      "-H", "-5",
+      "-L", "-15",
+      "-O", "<fc=#11ccff>AC:</fc>",
+      "-o", "<fc=grey>Batt:</fc>",
+      "-i", "<fc=#ddff88>Full:</fc>",
       "-p", "blue",
+      "-P",
+      "-m", "orange",
       "-h", "green",
       "-l", "red"
+      -- "-a", "notify-send -u critical 'Battery running out!!'",
+      -- "-A", "3"
     ] 10,
 
     -- To get volume information, we run a custom bash script.
@@ -67,6 +77,7 @@ Config {
     Run Com "/bin/bash" ["-c", "~/.xmonad/get-volume"] "myvolume" 10,
     -- Get mpris player
     Run Com "/bin/bash" ["-c", "~/bin/my-player-get"] "myplayer" 10,
+    Run Com "/bin/bash" ["-c", "~/bin/speaker-color #e6744c"] "speaker-color" 10,
 
     -- This line tells xmobar to read input from stdin. That's how we
     -- get the information that xmonad is sending it for display.
@@ -82,5 +93,5 @@ Config {
 
    -- Overall template for the layout of the xmobar contents. Note that
    -- space is significant and can be used to add padding.
-   template = "%UnsafeStdinReader% }{ %battery% | %cpu% | %memory% | Vol: %myvolume%| <action=`my-player-next`>Plr: <fc=#6c97d4>%myplayer%</fc> </action> <fc=#e6744c><action=`gnome-calendar`>%date%</action></fc>  "
+   template = "%UnsafeStdinReader% }{ %battery% | %cpu% | %memory% | <action=`speaker-toggle`><fc=%speaker-color%> Vol: %myvolume% </fc></action> | <action=`my-player-next`>Plr: <fc=#6c97d4>%myplayer%</fc> </action> <fc=#e6744c><action=`gnome-calendar`>%date%</action></fc>  "
 }
