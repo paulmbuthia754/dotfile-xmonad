@@ -6,9 +6,11 @@
 -- 
 -- There's a lot you can do here. Refer to "man xmobar". 
 -- 
--- Author: David Brewer
+-- Original Author: David Brewer
 -- Repository: https://github.com/davidbrewer/xmonad-ubuntu-conf
 
+-- Modified by: Paul Mbuthia
+-- Repository: https://github.com/paulmbuthia754/dotfile-xmonad
 
 Config { 
   -- Set font and default foreground/background colors. Note that
@@ -49,8 +51,8 @@ Config {
     -- Battery information. This is likely to require some customization
     -- based upon your specific hardware. Or, for a desktop you may want
     -- to just remove this section entirely.
-    -- Run BatteryP ["ADP1", "BAT1"] [
-    Run Battery [
+    -- Run Battery [
+    Run BatteryP ["ADP1", "BAT1"] [
       "-t", "<acstatus> <left>",
       "-H", "80",
       "-L", "20",
