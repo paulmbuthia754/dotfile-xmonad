@@ -117,3 +117,5 @@ tomboy --panel-applet &
 # Unfortunate artifact of pulseaudio bluetooth failure
 sleep 10; pactl load-module module-bluetooth-discover &
 blueman-applet &
+indicator-cpufreq &
+psensor &
