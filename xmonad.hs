@@ -27,6 +27,7 @@ import           XMonad.Actions.GroupNavigation
 import           XMonad.Actions.Plane
 import           XMonad.Actions.SimpleDate
 import           XMonad.Actions.WindowGo
+import           XMonad.Hooks.DynamicBars          as Bars
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops         hiding (fullscreenEventHook)
 import qualified XMonad.Hooks.EwmhDesktops         as E
@@ -93,7 +94,9 @@ myStartupHook    = do
       setWMName "LG3D"
       windows $ W.greedyView startupWorkspace
       ewmhDesktopsStartup
+      Bars.dynStatusBarStartup barCreator barDestoyer
       spawn "~/.xmonad/startup-hook"
+
 
 myEventHook = ewmhDesktopsEventHook <+> E.fullscreenEventHook <+> fullscreenEventHook
 
@@ -623,27 +626,40 @@ workSpaceKeys =
 -}
 
 main = do
-  xmprocess <- spawnPipe "xmobar ~/.xmonad/xmobarrc"
+  -- xmprocess <- spawnPipe "xmobar ~/.xmonad/xmobarrc"
   xmonad $ ewmh $ docks $ defaults {
-  handleEventHook = handleEventHook def <+> fullscreenEventHook <+> docksEventHook,
-  logHook            = myLogHook xmprocess
+  handleEventHook = handleEventHook def <+> fullscreenEventHook <+> docksEventHook <+> Bars.dynStatusBarEventHook barCreator barDestoyer,
+  logHook            = myLogHook {- xmprocess -}
  }
 
-myLogHook h = do
-   copies <- wsContainingCopies
-   let check ws | ws `elem` copies = xmobarColor myCopiedWSColor myAltBackGroundWSColor . clickable $ ws
-                | otherwise = clickable ws
-   dynamicLogWithPP xmobarPP {
-      ppOutput = hPutStrLn h
-      , ppTitle = xmobarColor myTitleColor myBackGroundWSColor . shorten myTitleLength
-      , ppCurrent = xmobarColor myCurrentWSColor myBackGroundWSColor
-        . wrap myCurrentWSLeft myCurrentWSRight . clickable
-      , ppVisible = xmobarColor myVisibleWSColor myBackGroundWSColor
-        . wrap myVisibleWSLeft myVisibleWSRight . clickable
-      , ppUrgent = xmobarColor myUrgentWSColor myBackGroundWSColor
-        . wrap myUrgentWSLeft myUrgentWSRight . clickable
-      , ppHidden = check
+myLogHook {- h -} = do
+    copies <- wsContainingCopies
+    let check ws | ws `elem` copies = xmobarColor myCopiedWSColor myAltBackGroundWSColor . clickable $ ws
+                 | otherwise = clickable ws
+    -- dynamicLogWithPP
+
+    let myLogPP {- h -} = xmobarPP {
+          -- ppOutput = hPutStrLn h
+          ppTitle = xmobarColor myTitleColor myBackGroundWSColor . shorten myTitleLength,
+          ppCurrent = xmobarColor myCurrentWSColor myBackGroundWSColor . wrap myCurrentWSLeft myCurrentWSRight . clickable,
+          ppVisible = xmobarColor myVisibleWSColor myBackGroundWSColor . wrap myVisibleWSLeft myVisibleWSRight . clickable,
+          ppUrgent = xmobarColor myUrgentWSColor myBackGroundWSColor . wrap myUrgentWSLeft myUrgentWSRight . clickable,
+          ppHidden = check
+        }
+
+    let myLogPPActive = myLogPP {
+            ppCurrent = xmobarColor myCurrentWSColor myBackGroundWSColor . wrap myCurrentWSLeft myCurrentWSRight . clickable
     }
+
+    Bars.multiPP myLogPPActive myLogPP
+
+
+{- Status Bar On multiple Screens -}
+barCreator :: Bars.DynamicStatusBar
+barCreator (S sid) = spawnPipe $ "xmobar ~/.xmonad/xmobarrc --screen " <> show sid
+
+barDestoyer :: Bars.DynamicStatusBarCleanup
+barDestoyer = return ()
 
 defaults = def {
     -- simple stuff

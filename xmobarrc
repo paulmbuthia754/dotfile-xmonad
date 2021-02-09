@@ -29,6 +29,9 @@ Config {
   -- general behaviour
   lowerOnStart =   False,
   hideOnStart  =   False,
+  
+  -- Show on all desktops
+  allDesktops = False,
 
   -- list of commands which gather information about your system for
   -- presentation in the bar. 
@@ -61,7 +64,7 @@ Config {
       "--",
       "-H", "-5",
       "-L", "-15",
-      "-O", "<fc=#11ccff>AC:</fc>",
+      "-O", "<fc=#11eeff>AC:</fc>",
       "-o", "<fc=grey>Batt:</fc>",
       "-i", "<fc=#ddff88>Full:</fc>",
       "-p", "blue",
