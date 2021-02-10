@@ -119,3 +119,4 @@ sleep 10; pactl load-module module-bluetooth-discover &
 blueman-applet &
 indicator-cpufreq &
 psensor &
+ulauncher &
